@@ -51,10 +51,13 @@ const ChatContainer = () => {
         {messages.map((message) => (
           <div
             key={message._id}
-            className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
+            className={`chat ${
+              message.senderId === authUser._id ? "chat-end" : "chat-start"
+            }`}
             ref={messageEndRef}
           >
-            <div className=" chat-image avatar">
+            {/* Avatar */}
+            <div className="chat-image avatar">
               <div className="size-10 rounded-full border">
                 <img
                   src={
@@ -66,12 +69,15 @@ const ChatContainer = () => {
                 />
               </div>
             </div>
-            <div className="chat-header mb-1">
-              <time className="text-xs opacity-50 ml-1">
-                {formatMessageTime(message.createdAt)}
-              </time>
-            </div>
-            <div className="chat-bubble flex flex-col">
+
+            {/* Message Bubble */}
+            <div
+              className={`chat-bubble flex flex-col ${
+                message.senderId === authUser._id
+                  ? "bg-primary text-white" // Sender
+                  : "bg-base-200 text-black" // Receiver
+              }`}
+            >
               {message.image && (
                 <img
                   src={message.image}
@@ -81,6 +87,13 @@ const ChatContainer = () => {
               )}
               {message.text && <p>{message.text}</p>}
             </div>
+
+            {/* Message Header */}
+            <div className="chat-header mb-1">
+              <time className="text-xs opacity-50 ml-1">
+                {formatMessageTime(message.createdAt)}
+              </time>
+            </div>
           </div>
         ))}
       </div>
@@ -89,4 +102,5 @@ const ChatContainer = () => {
     </div>
   );
 };
+
 export default ChatContainer;

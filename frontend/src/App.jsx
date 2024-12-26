@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import Navbar from './components/Navbar';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import SettingsPage from './pages/SettingsPage';
@@ -10,6 +9,7 @@ import { useAuthStore } from './Store/useAuthStore';
 import { Loader } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 import { useThemeStore } from './Store/useThemeStore.js';
+import Navbar from './components/Navbar.jsx';
 
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth, onlineUsers} = useAuthStore();
@@ -32,12 +32,12 @@ const App = () => {
         <Loader className="size-10 animate-spin" />
       </div>
     );
-  }
+  };
   console.log(onlineUsers);
 
   return (
     <div className={`w-screen min-h-screen ${theme}`}>
-      <Navbar />
+      <Navbar/>
       <Routes>
         <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
         <Route path="/signup" element={!authUser ? <SignupPage /> : <Navigate to="/" />} />

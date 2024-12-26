@@ -11,8 +11,18 @@ const MessageInput = () => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file");
+      return;
+    }
+
+    // Validate file size (5 MB limit)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error("Image size exceeds 5 MB limit");
       return;
     }
 
@@ -26,6 +36,7 @@ const MessageInput = () => {
   const removeImage = () => {
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    document.querySelector("input[type='text']").focus();
   };
 
   const handleSendMessage = async (e) => {
@@ -44,11 +55,13 @@ const MessageInput = () => {
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       console.error("Failed to send message:", error);
+      toast.error("Failed to send message");
     }
   };
 
   return (
     <div className="p-4 w-full">
+      {/* Image Preview */}
       {imagePreview && (
         <div className="mb-3 flex items-center gap-2">
           <div className="relative">
@@ -59,18 +72,19 @@ const MessageInput = () => {
             />
             <button
               onClick={removeImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
-              flex items-center justify-center"
+              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center"
               type="button"
             >
-              <X className="size-3" />
+              <X className="size-4" />
             </button>
           </div>
         </div>
       )}
 
+      {/* Input Form */}
       <form onSubmit={handleSendMessage} className="flex items-center gap-2">
         <div className="flex-1 flex gap-2">
+          {/* Text Input */}
           <input
             type="text"
             className="w-full input input-bordered rounded-lg input-sm sm:input-md"
@@ -78,6 +92,8 @@ const MessageInput = () => {
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
+
+          {/* Hidden File Input */}
           <input
             type="file"
             accept="image/*"
@@ -86,18 +102,22 @@ const MessageInput = () => {
             onChange={handleImageChange}
           />
 
+          {/* Attach Image Button */}
           <button
             type="button"
-            className={`hidden sm:flex btn btn-circle
-                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
+            className="btn btn-circle text-zinc-400 hover:bg-zinc-700"
             onClick={() => fileInputRef.current?.click()}
           >
             <Image size={20} />
           </button>
         </div>
+
+        {/* Send Button */}
         <button
           type="submit"
-          className="btn btn-sm btn-circle"
+          className={`btn btn-sm btn-circle ${
+            !text.trim() && !imagePreview ? "btn-disabled" : ""
+          }`}
           disabled={!text.trim() && !imagePreview}
         >
           <Send size={22} />
@@ -106,4 +126,5 @@ const MessageInput = () => {
     </div>
   );
 };
+
 export default MessageInput;

@@ -4,9 +4,8 @@ import { useAuthStore } from "../Store/useAuthStore";
 import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users, Search } from "lucide-react";
 
-const Sidebar = () => {
+const Sidebar = ({ isMobileView, showSidebar }) => {
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
-
   const { onlineUsers } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
@@ -24,7 +23,11 @@ const Sidebar = () => {
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
-    <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
+    <aside
+      className={`h-full w-full lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200 ${
+        isMobileView && !showSidebar ? "hidden" : "block"
+      }`}
+    >
       {/* Header Section */}
       <div className="border-b border-base-300 w-full p-5">
         <div className="flex items-center gap-2">
@@ -70,7 +73,7 @@ const Sidebar = () => {
               ${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
             `}
           >
-            <div className="relative mx-auto lg:mx-0">
+            <div className="relative md:mr-1">
               <img
                 src={user.profilePic || "/avatar.png"}
                 alt={user.name}
@@ -85,7 +88,7 @@ const Sidebar = () => {
             </div>
 
             {/* User Info */}
-            <div className="hidden lg:block text-left min-w-0">
+            <div className="lg:block text-left min-w-0">
               <div className="font-medium truncate">{user.fullName}</div>
               <div className="text-sm text-zinc-400">
                 {onlineUsers.includes(user._id) ? "Online" : "Offline"}
