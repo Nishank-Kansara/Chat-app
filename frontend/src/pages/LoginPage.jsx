@@ -3,18 +3,18 @@ import AuthImagePattern from "../components/AuthImagePattern";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
 import { useAuthStore } from "../Store/useAuthStore";
+import ForgetPasswordModal from "../components/forgetPasswordModal";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const { login, isLoggingIn } = useAuthStore();
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [isModalOpen, setModalOpen] = useState(false);
+  const { login, isLoggingIn,setloginEmail} = useAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     login(formData);
+    setloginEmail(formData.email);
   };
 
   return (
@@ -97,6 +97,16 @@ const LoginPage = () => {
             </button>
           </form>
 
+          {/* Forgot Password */}
+          <div className="text-center mt-4">
+            <button
+              className="link link-primary"
+              onClick={() => setModalOpen(true)}
+            >
+              Forgot Password?
+            </button>
+          </div>
+
           <div className="text-center">
             <p className="text-base-content/60">
               Don&apos;t have an account?{" "}
@@ -113,7 +123,13 @@ const LoginPage = () => {
         title={"Welcome back!"}
         subtitle={"Sign in to continue your conversations and catch up with your messages."}
       />
+
+      {/* Forget Password Modal */}
+      {isModalOpen && (
+        <ForgetPasswordModal onClose={() => setModalOpen(false)} />
+      )}
     </div>
   );
 };
+
 export default LoginPage;

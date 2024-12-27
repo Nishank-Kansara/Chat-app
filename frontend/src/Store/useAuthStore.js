@@ -13,7 +13,7 @@ export const useAuthStore = create((set, get) => ({
   isCheckingAuth: true,
   onlineUsers: [],
   socket: null,
-  
+  loginEmail:null,
 
   // Check if user is authenticated
   checkAuth: async () => {
@@ -99,7 +99,6 @@ export const useAuthStore = create((set, get) => ({
     socket.connect();
 
     set({ socket: socket });
-
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
@@ -107,4 +106,33 @@ export const useAuthStore = create((set, get) => ({
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
   },
+  sendPasswordReset: async (email) => {
+    try {
+      await axiosInstance.post("/auth/forget-password", { email });
+      toast.success("OTP sent to your email!");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to send OTP");
+    }
+  },
+  verifyOTP: async (email, otp) => {
+    try {
+      await axiosInstance.post("/auth/verify-otp", { email, otp });
+      toast.success("OTP verified successfully!");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Invalid or expired OTP");
+      throw error;
+    }
+  },
+  resetPassword: async (email, newPassword) => {
+    try {
+      await axiosInstance.post("/auth/reset-password", { email, newPassword });
+      toast.success("Password reset successfully!");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to reset password");
+      throw error;
+    }
+  },
+  setloginEmail:(email)=>{
+    set({loginEmail:email});
+  }
 }));

@@ -2,6 +2,8 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
+import nodemailer from "nodemailer";
+
 
 // User Signup
 export const signup = async (req, res) => {
@@ -126,6 +128,126 @@ export const checkAuth = (req, res) => {
     res.status(200).json(req.user);
   } catch (error) {
     console.error("Error in checkAuth controller:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const forgetPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User with this email does not exist" });
+    }
+
+    // Generate a 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Set OTP and expiration in user document
+    user.resetPasswordOTP = otp;
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // OTP valid for 15 minutes
+    await user.save(); // Save updated user to DB
+
+    // Check saved OTP
+    console.log("Saved OTP:", user.resetPasswordOTP);
+
+    // Send OTP to user's email
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // You can use other services like SendGrid, Mailgun, etc.
+      auth: {
+        user: process.env.EMAIL, // Your email
+        pass: process.env.EMAIL_PASSWORD, // Your email password
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Your Password Reset OTP",
+      text: `Your OTP for password reset is ${otp}. This OTP will expire in 15 minutes.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "OTP sent to your email" });
+  } catch (error) {
+    console.error("Error in forgetPassword:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+
+export const verifyOTP = async (req, res) => {
+  const { email, otp } = req.body;
+
+  try {
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    // Check if OTP matches and is not expired
+    const isOtpValid = user.resetPasswordOTP === otp; // Ensure both are strings
+    const isOtpExpired = user.resetPasswordExpire < Date.now(); // Expired if current time > expiry time
+    console.log("OTP Expiry Time:", user.resetPasswordExpire, "Current Time:", Date.now());
+
+
+    if (!isOtpValid) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    if (isOtpExpired) {
+      return res.status(400).json({ message: "Expired OTP" });
+    }
+
+    // Clear OTP fields after verification
+    user.resetPasswordOTP = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    res.status(200).json({ message: "OTP verified successfully" });
+  } catch (error) {
+    console.error("Error in verifyOTP:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+export const resetPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    // Validate new password
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    // Check if new password matches the old password
+    const isMatch = await bcrypt.compare(newPassword, user.password);
+    if (isMatch) {
+      return res.status(400).json({ message: "New password cannot be the same as the old password" });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update user's password
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    console.error("Error in resetPassword:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

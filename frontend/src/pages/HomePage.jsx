@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import { useChatStore } from "../Store/useChatStore.js";
+import { useAuthStore } from "../Store/useAuthStore.js";
+
 
 import Sidebar from "../components/Sidebar";
 import NoChatSelected from "../components/NoChatSelected";
 import ChatContainer from "../components/ChatContainer";
 
 const HomePage = () => {
-  const { selectedUser } = useChatStore();
+  const { selectedUser} = useChatStore();
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const {onlineUsers}=useAuthStore();
 
   // Update screen width on resize
   useEffect(() => {
