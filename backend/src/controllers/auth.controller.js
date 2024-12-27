@@ -161,12 +161,25 @@ export const forgetPassword = async (req, res) => {
         pass: process.env.EMAIL_PASSWORD, // Your email password
       },
     });
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+        <h2 style="text-align: center; color: #4CAF50;">Password Reset Request</h2>
+        <p>Hi <strong>${user.name || "User"}</strong>,</p>
+        <p>You recently requested to reset your password. Use the OTP below to proceed:</p>
+        <h1 style="text-align: center; color: #333; background: #f9f9f9; padding: 10px; border-radius: 5px;">${otp}</h1>
+        <p style="color: #555;">This OTP is valid for <strong>15 minutes</strong>. Please do not share it with anyone.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="text-align: center; color: #aaa; font-size: 12px;">
+          If you did not request this, you can safely ignore this email.
+        </p>
+      </div>
+    `;
 
     const mailOptions = {
       from: process.env.EMAIL,
       to: email,
       subject: "Your Password Reset OTP",
-      text: `Your OTP for password reset is ${otp}. This OTP will expire in 15 minutes.`,
+      html:emailHtml,
     };
 
     await transporter.sendMail(mailOptions);
