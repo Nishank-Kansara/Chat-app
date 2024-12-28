@@ -164,7 +164,7 @@ export const forgetPassword = async (req, res) => {
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
         <h2 style="text-align: center; color: #4CAF50;">Password Reset Request</h2>
-        <p>Hi <strong>${user.name || "User"}</strong>,</p>
+        <p>Hi <strong>${user.fullName || "User"}</strong>,</p>
         <p>You recently requested to reset your password. Use the OTP below to proceed:</p>
         <h1 style="text-align: center; color: #333; background: #f9f9f9; padding: 10px; border-radius: 5px;">${otp}</h1>
         <p style="color: #555;">This OTP is valid for <strong>15 minutes</strong>. Please do not share it with anyone.</p>

@@ -10,6 +10,10 @@ import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { app, server } from "./lib/socket.js";
+import friendRequestRoutes from "./routes/friendrequest.route.js";
+import { protectRoute } from "./middleware/auth.middleware.js";
+
+
 
 dotenv.config();
 
@@ -30,6 +34,7 @@ app.use(
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/friendrequests",protectRoute, friendRequestRoutes);
 
 // Serve frontend in production
 if (process.env.NODE_ENV === "production") {

@@ -23,6 +23,6 @@ router.put("/update-profile", protectRoute, updateProfile);
 // Password reset routes
 router.post("/forget-password", forgetPassword); // To send OTP
 router.post("/verify-otp", verifyOTP); // To verify OTP
-router.post("/reset-password", resetPassword); // To reset password
+router.post("/reset-password",protectRoute,resetPassword); // To reset password
 
 export default router;
