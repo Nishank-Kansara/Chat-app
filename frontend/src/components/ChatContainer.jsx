@@ -74,8 +74,8 @@ const ChatContainer = () => {
             <div
               className={`chat-bubble flex flex-col ${
                 message.senderId === authUser._id
-                  ? "bg-primary text-white" // Sender
-                  : "bg-base-200 text-black" // Receiver
+                  ? "bg-primary " // Sender
+                  : "bg-base-200 " // Receiver
               }`}
             >
               {message.image && (

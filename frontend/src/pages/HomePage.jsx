@@ -2,15 +2,14 @@ import { useState, useEffect } from "react";
 import { useChatStore } from "../Store/useChatStore.js";
 import { useAuthStore } from "../Store/useAuthStore.js";
 
-
 import Sidebar from "../components/Sidebar";
 import NoChatSelected from "../components/NoChatSelected";
 import ChatContainer from "../components/ChatContainer";
 
 const HomePage = () => {
-  const { selectedUser} = useChatStore();
+  const { selectedUser } = useChatStore();
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-  const {onlineUsers}=useAuthStore();
+  const { onlineUsers } = useAuthStore();
 
   // Update screen width on resize
   useEffect(() => {
@@ -26,13 +25,17 @@ const HomePage = () => {
   return (
     <div className="h-screen bg-base-200">
       <div className="flex items-center justify-center pt-20 px-4">
-        <div className="bg-base-100 rounded-lg shadow-cl w-full max-w-6xl h-[calc(100vh-8rem)]">
+        <div
+          className={`bg-base-100 rounded-lg shadow-cl w-full max-w-6xl ${
+            isMobile ? "h-screen" : "h-[calc(100vh-8rem)]"
+          }`}
+        >
           <div className="flex h-full rounded-lg overflow-hidden">
             {/* Sidebar */}
             {isMobile && selectedUser ? null : <Sidebar />}
 
             {/* Chat Area */}
-            {!selectedUser ? (isMobile ? null:<NoChatSelected />) : <ChatContainer />}
+            {!selectedUser ? (isMobile ? null : <NoChatSelected />) : <ChatContainer />}
           </div>
         </div>
       </div>
